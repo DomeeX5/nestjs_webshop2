@@ -25,6 +25,7 @@ export class AppController {
   @Get("/login")
   @Render('login')
   async login() {
+    
   }
 
   @Post('/login')
