@@ -27,20 +27,30 @@ export class AppController {
   @Get("/login")
   @Render('login')
   async login() {
+    return { errors: [] }
   }
-
-  @Post('/loginSuccess')
+  
+  @Post('/login')
   @Render('login')
   async loginForm(@Body() existingUser: UserLogin, @Res() res: Response){
     const errors: string[] = [];
-    const [ success ] = await conn.execute('SELECT * from users WHERE username = ?, password = ?' [existingUser.username, existingUser.password]) 
-    res.redirect('/')
+    const [ success ] = await conn.execute('SELECT email, username, password from users WHERE username = ?, password = ?' [existingUser.username, existingUser.password]) 
+    if( !success ) {
+      errors.push('A felhasználónév vagy a jelszó helytelen!')
+    } else {
+      if(errors.length > 0) {
+        return { 
+          errors,
+        }
+      }
+      res.redirect('/')
+    }
   }
 
   @Get('/register')
   @Render('register')
   async register() {
-
+    return { errors: [] }
   }
 
   @Post('/register')
@@ -52,19 +62,27 @@ export class AppController {
     const regexPassword = /[a-zA-Z0-9]/;
     if(!regexEmail.test(newUser.email)){
       errors.push('Az email-cím helytelen!')
-    }
+    } else { errors.push('') }
     if(!regexUsername.test(newUser.username)){
       errors.push('A felhasználó név maximum 10 karakter lehet!')
-    }
+    } else { errors.push('') }
     if(newUser.password.length < 8 || !regexPassword.test(newUser.password)){
       errors.push('A jelszó minimum 8 karakter kell legyen, és kell tartalmazzon nagybetűt, és számot!')
-    }
-    if(newUser.password_again !== newUser.password){
+    } else { errors.push('') }
+    if(newUser.password !== newUser.password_again){
       errors.push('A két jelszó nem egyezik!')
+    } else { errors.push('') }
+    
+    if(errors.length > 4) {
+      return {
+        errors,
+      };
     } else {
-      const [ adatok ] = await conn.execute('INSERT INTO users (email, username, password) VALUES (?,?,?)', [newUser.email, newUser.username, newUser.password]) 
-      res.redirect('/login');
-      return { registerSuccess: adatok }
+      const [ adatok ] = await conn.execute(
+        'INSERT INTO users (email, username, password) VALUES (?,?,?)',
+        [newUser.email, newUser.username, newUser.password]
+        );
     }
+    res.redirect('/');
   }
 }

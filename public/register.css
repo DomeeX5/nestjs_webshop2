@@ -35,7 +35,7 @@ body{
   form .txt_field{
     position: relative;
     border-bottom:3px solid #2a2929;
-    margin: 25px 0;
+    margin: 15px 0;
   }
   
   .txt_field input{
@@ -128,6 +128,12 @@ body{
     height: 25vh;
   }
   
+  .errorMessage {
+    color: red;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
   #registerButton {
     margin-top: 20px;
   }
